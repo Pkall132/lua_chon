@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Tớ hỏi cậu</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffd6ec, #ffe4e1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      overflow: hidden;
+    }
+    .container {
+      text-align: center;
+      background-color: #fff0f5;
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    h1 {
+      font-size: 32px;
+      color: #ff69b4;
+      margin-bottom: 30px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      position: relative;
+    }
+    button {
+      padding: 10px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    #yesBtn {
+      background-color: #ff6b81;
+      color: white;
+    }
+    #noBtn {
+      background-color: #ffe4e1;
+      color: #ff6b81;
+    }
+    #message {
+      font-size: 28px;
+      color: #ff1493;
+      display: none;
+    }
+    @keyframes explode {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    /* nút bật/tắt nhạc */
+    #toggleMusic {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <h1 id="question">Cậu thích tớ không?</h1>
+    <div class="buttons">
+      <button id="yesBtn">Có 💖</button>
+      <button id="noBtn">Không 😅</button>
+    </div>
+    <div id="message">Tớ biết mà 💖</div>
+  </div>
+
+  <!-- Container cho YouTube player (kích thước 0 để ẩn) -->
+  <div id="playerContainer" style="width:0; height:0; overflow:hidden;"></div>
+  <button id="toggleMusic">🔊 Tắt nhạc</button>
+
+  <!-- Load YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    // ********** Phần YouTube background music **********
+    let player;
+    let isPlaying = true;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('playerContainer', {
+        videoId: 'h4II9bYqv9I',
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: 'h4II9bYqv9I',
+          controls: 0,
+          modestbranding: 1,
+          fs: 0,
+        },
+        events: {
+          onReady: (e) => {
+            e.target.setVolume(50);
+            e.target.playVideo();
+          }
+        }
+      });
+    }
+
+    const toggleBtn = document.getElementById("toggleMusic");
+    toggleBtn.addEventListener("click", () => {
+      if (isPlaying) {
+        player.pauseVideo();
+        toggleBtn.textContent = "🔇 Bật nhạc";
+      } else {
+        player.playVideo();
+        toggleBtn.textContent = "🔊 Tắt nhạc";
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // ********** Phần câu hỏi & nút Có/Không **********
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const question = document.getElementById("question");
+    const message = document.getElementById("message");
+
+    const phrases = [
+      "Cậu nhẫn tâm à",
+      "Suy nghĩ lại đi",
+      "Thật sự sao",
+      "Cậu dối lòng"
+    ];
+
+    noBtn.addEventListener("click", () => {
+      if (phrases.length > 0) {
+        const idx = Math.floor(Math.random() * phrases.length);
+        const text = phrases.splice(idx, 1)[0];
+        noBtn.textContent = text;
+        const offsetX = Math.floor(Math.random() * 300 - 150);
+        const offsetY = Math.floor(Math.random() * 200 - 100);
+        noBtn.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      } else {
+        noBtn.style.animation = 'explode 0.5s forwards';
+        setTimeout(() => noBtn.style.display = 'none', 500);
+      }
+    });
+
+    yesBtn.addEventListener("click", () => {
+      question.style.display = "none";
+      yesBtn.style.display = "none";
+      noBtn.style.display = "none";
+      message.style.display = "block";
+    });
+
+    // ********** Bật nhạc sau click đầu tiên (nếu bị chặn autoplay) **********
+    document.body.addEventListener("click", () => {
+      if (player && player.getPlayerState() !== YT.PlayerState.PLAYING) {
+        player.playVideo();
+      }
+    }, { once: true });
+  </script>
+</body>
+</html>
